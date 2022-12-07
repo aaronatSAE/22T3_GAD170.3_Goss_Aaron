@@ -15,16 +15,42 @@ namespace AaronGoss
                     - Change material to “Tangible” material
          */
 
+        // TURN OFF AFTER X SECONDS
+        // ? needs a timer
+        // ? make the timer count down to zero
+        // ? needs to check if the timer has run out
+        // ? 'turns intangible' after the timer has run out
+        // ? have a way to reset the timer
+
         [SerializeField] private GameObject block;
         [SerializeField] private Material tangibleMaterial;
         [SerializeField] private Material intangibleMaterial;
 
+        [SerializeField] private float intangibilityCountdownTimer = 5f;
+        [SerializeField] private float intangibilityCountdownTimerReset = 5f;
+
         // We don't want the blocks to turn tangible on Start...
         // ...we want them to turn tangible when the SWITCH IS TRIGGERED
-        //private void Start()
-        //{
-        //    TurnIntangible();
-        //}
+
+        private void OnEnable()
+        {
+            EventsManager.OnTransientBlockButtonPressEvent += TurnTangible;
+        }
+
+        private void OnDisable()
+        {
+            EventsManager.OnTransientBlockButtonPressEvent -= TurnTangible;
+        }
+
+        private void Update()
+        {
+            intangibilityCountdownTimer -= Time.deltaTime;
+
+            if(intangibilityCountdownTimer < 0 && block.GetComponent<BoxCollider>().enabled == true)
+            {
+                TurnIntangible();
+            }
+        }
 
         public void TurnIntangible()
         {
@@ -49,6 +75,8 @@ namespace AaronGoss
 
                 // ...and change the material to "Tangible"
                 block.GetComponent<MeshRenderer>().material = tangibleMaterial;
+
+                intangibilityCountdownTimer = intangibilityCountdownTimerReset;
             }
         }
     }
